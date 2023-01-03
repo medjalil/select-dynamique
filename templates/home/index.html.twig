@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Select dynamique{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .loading {
+            position: absolute;
+            z-index: 10;
+            display: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8) url('{{ asset('assets/img/loading.gif') }}') no-repeat 50%;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-6 mx-auto">
+            <h1 class="display-4 my-5">Select dynamique avec Symfony 6 et PHP 8.1.* </h1>
+            <div class="loading"></div>
+            {{ form_start(form) }}
+            {{ form_widget(form) }}
+            <button type="submit" class="btn btn-primary w-100">Valider</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        let $category = $('#stock_category');
+        $category.change(function () {
+            // ... retrieve the corresponding form.
+            let form = $(this).closest('form');
+            // Simulate form data, but only include the selected sport value.
+            let data = {};
+            data[$category.attr('name')] = $category.val();
+            // Submit data via AJAX to the form's action path.
+            $(".loading").show();
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method'),
+                data: data,
+                complete: function (html) {
+                    // Replace current position field ...
+                    $('#stock_product').replaceWith(
+                        // ... with the returned one from the AJAX response.
+                        $(html.responseText).find('#stock_product')
+                    );
+                    $(".loading").hide();
+                    // Position field now displays the appropriate positions.
+                }
+            });
+        });
+    </script>
+{% endblock %}
